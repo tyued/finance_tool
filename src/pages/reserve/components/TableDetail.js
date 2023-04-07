@@ -1,10 +1,10 @@
 /* eslint-disable */
 import React, { useState, useEffect } from 'react';
-import { Table, Button, Tooltip, Icon } from 'antd';
+import { Table, Button, Tooltip, Icon, Popconfirm } from 'antd';
 import styles from '@/layouts/index.less';
 
 function TableDetail(props){
-    const { isMobile, dataSource, dataTotal, getDataSource, modeTab } = props;
+    const { isMobile, dataSource, dataTotal, getDataSource, modeTab, clickEdit } = props;
     
     const [ pageIndex, setPageIndex] = useState(1);
     const [ columns, setColumns] = useState([]);
@@ -57,8 +57,17 @@ function TableDetail(props){
         onlyTable: true,
         render: (item, row, index) => (
             <>
-                <Button type='primary' loading={row.status==='submitted' && global.loading} size='small'>Modify</Button>
-                <Button  style={{marginLeft: 10, background: '#ff4d4f', borderColor: '#ff4d4f'}} type='primary' loading={row.status==='submitted' && global.loading} size='small'>Delete</Button>
+                <Button type='primary' loading={row.status==='submitted' && global.loading} size='small' onClick={()=>clickEdit('edit')}>Modify</Button>
+
+                <Popconfirm
+                    placement='top'
+                    title='confirm to delete?'
+                    onConfirm={delectReserve}
+                    okText='Yes'
+                    cancelText='No'
+                >
+                    <Button  style={{marginLeft: 10, background: '#ff4d4f', borderColor: '#ff4d4f'}} type='primary' loading={row.status==='submitted' && global.loading} size='small'>Delete</Button>
+                </Popconfirm>
             </>
         )
     }] 
@@ -143,6 +152,10 @@ function TableDetail(props){
                 getDataSource(current)
             }
         },
+    }
+    
+    const delectReserve = () => {
+        console.log('delectReserve')
     }
 
     useEffect(() => {
