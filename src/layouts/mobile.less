@@ -1,0 +1,98 @@
+@media screen and (max-width:500px){
+    .mobile{
+        background: rgba(220, 220, 220, 1);
+        .mainPer{
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            padding: 70px 10px 10px;
+            .container{
+                padding: 0;
+                height: 100%;
+                border-radius: 10px;
+                overflow: auto;
+                -webkit-overflow-scrolling: touch;
+                .content{
+                    padding: 10px;
+                }
+            }
+        }
+    }
+    .mobileMenuMask {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,.8);
+        z-index: 10;
+    }
+    .sider {
+        width: 70%;
+        height: 100%;
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 400;
+        background: linear-gradient(to bottom ,rgba(35, 118, 221, .9), rgba(255,255,255,.6));
+    }
+    .main{
+        width: 100% !important;
+        transition: none !important;
+    }
+    .header{
+        position: absolute;
+        top: 0;
+        left: 0;
+        background: #2376DD;
+    }
+    .main{
+        padding-top: 60px;
+        .container{
+            padding: 0 10px 10px;
+            .content{
+                padding: 10px;
+            }
+        }
+    }
+    .formItem{
+        :global .ant-col-24.ant-form-item-label{
+            padding-bottom: 0;
+        }
+    }
+    .detailCol{
+        span{
+            b{
+                clear: both;
+                display: block;
+            }
+        }
+    }
+
+    .dashboard_Summary {
+        // flex-wrap: nowrap;
+        // justify-content: center;
+        display: block;
+        height: auto;
+        .summaryItem {
+            width: 100%;
+            background: transparent;
+            display: block;
+            padding: 5px 10px;
+            .summaryTitle {
+                font-size: 20px;
+                text-align: left;
+            }
+            .summaryBalance {
+                font-size: 18px;
+                text-align: left;
+            }
+        }
+    }
+    .dashboard_Charts_bar {
+        width: 100%;
+    }
+    .dashboard_Charts_pie {
+        margin-top: 20px;
+        width: 100%;
+    }
+
+}

@@ -1,0 +1,125 @@
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+}
+pre{
+	padding: 0 !important;
+	margin: 0 !important;
+	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+}
+.right{
+  float: right;
+}
+.flexScrollY{
+    flex: 1;
+	overflow: hidden;
+    overflow-y: auto;
+}
+.flexScroll{
+    flex: 1;
+    overflow: auto;
+}
+.flexScrollY::-webkit-scrollbar{
+	width: 6px;
+	height: 6px;
+	// background-color:rgba(240,240,240,1); 
+}
+.flexScrollY::-webkit-scrollbar-track{
+	box-shadow: inset 10px 10px 10px rgba(61,77,142,.9);
+//    border-radius: 10px;
+   background-color:rgba(61,77,142,.9);
+}
+.flexScrollY::-webkit-scrollbar-thumb{
+   border-radius: 10px;
+   box-shadow: inset 10px 10px 10px rgba(128,145,225,.9);
+   background-color:rgba(128,145,225,.9);
+}
+
+.flex{
+    flex: 1;
+	overflow: hidden;
+}
+.searchInp{
+	width: 200px;
+	margin-right: 20px;
+}
+::-webkit-scrollbar-track{
+ 	box-shadow: inset 10px 10px 10px rgba(240,240,240,.5);
+	border-radius: 10px;
+	background-color:rgba(240,240,240,.5);
+}
+::-webkit-scrollbar-thumb{
+	border-radius: 10px;
+	box-shadow: inset 10px 10px 10px rgba(240,240,240,.5);
+	background-color:rgba(240,240,240,.5);
+}
+
+.role{
+	&-header{
+	  margin-bottom: 20px;
+	}
+}
+@keyframes turn{
+	from {-webkit-transform: rotate(0deg);}
+	to {-webkit-transform: rotate(360deg);}
+}
+:global{
+	.ant-tree{
+	  padding: 0;
+	}
+	.ant-tree > li:first-child{
+	  padding: 0;
+	}
+	.ant-tree li{
+	  padding: 0;
+	}
+	.ant-table-small {
+		border: none !important;
+	}
+	.ant-table-content .ant-table-thead {
+		tr > th {
+			background-color: #F2f2f2;
+		}
+	}
+	#nprogress {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 5px;
+		z-index: 9999;
+		.bar {
+			background: rgb(51, 105, 253);
+			// background: #ffe397;
+			// background: rgba(244, 244, 244, .6);
+			height: 5px;
+		}
+	}
+	#root {
+		&::after {
+			content: '\20';
+			width: 100px;
+			height: 100px;
+			background: url(../public/logo.png) 100% 100%;
+			background-size: 100% 100%;
+			position: absolute;
+			z-index: -1;
+			top: 50%;
+			left: 50%;
+			margin-top: -50px;
+			margin-left: -50px;
+			animation: turn 3s linear infinite;
+		}
+	}
+}
+.errorTips{
+	text-align: center;
+}
+.searchBox{
+	margin-bottom: 20px;
+}
+
+  
