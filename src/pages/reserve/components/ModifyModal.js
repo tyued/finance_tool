@@ -16,6 +16,8 @@ function ModifyModal(props){
     useEffect(() => {
         if(modalType === 'add'){
             setModalTitle('New Reserve')
+        }else{
+            setModalTitle('Edit Reserve')
         }
     }, [modalType])
 

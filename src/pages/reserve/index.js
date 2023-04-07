@@ -32,6 +32,7 @@ function Reserve({ app, reserveModel, dispatch }) {
         dataSource,
         dataTotal,
         modeTab,
+        clickEdit,
         getDataSource: useCallback(async (pageIndex) => {
             let initQuery = {
                 page_index: pageIndex || 1,
