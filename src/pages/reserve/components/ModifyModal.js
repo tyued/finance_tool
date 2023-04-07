@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { Modal, Radio, DatePicker, Form, Input, Row, Col, Checkbox, Button, Divider, Select } from 'antd';
-import styles from '@/layouts/index.less';
+import { Modal, Radio, Form, Input, Row, Col, Checkbox, Button, Select } from 'antd';
+import styles from '@/assets/css/style.less';
 
 const FormItem = Form.Item;
 const { Search } = Input
@@ -30,7 +30,7 @@ function ModifyModal(props){
             className={styles.formlabelcss}
         >
             <Form>
-                <FormItem label="Merchant's Citcon MID" style={{marginBottom: 0}}>
+                <FormItem label="Merchant's Citcon MID">
                     <Search placeholder="Please enter merchant's citcon MID"></Search>
                 </FormItem>
                 <Row gutter={24}>
@@ -50,17 +50,17 @@ function ModifyModal(props){
                 </Checkbox>
                 <Row gutter={24}>
                     <Col span={8}>
-                        <FormItem label="Amount" style={{marginBottom: 0}}>
+                        <FormItem label="Amount">
                             <Input placeholder="Amount" />  
                         </FormItem>
                     </Col>
                     <Col span={8}>
-                        <FormItem label="Due Date" style={{marginBottom: 0}}>
+                        <FormItem label="Due Date">
                             <Input placeholder="Date" />  
                         </FormItem>
                     </Col>
                     <Col span={8}>
-                        <FormItem label="Release Date" style={{marginBottom: 0}}>
+                        <FormItem label="Release Date">
                             <Input placeholder="Date" />  
                         </FormItem>
                     </Col>
@@ -76,10 +76,10 @@ function ModifyModal(props){
                         </div>
                         <div>
                             <Radio value={3}>Invoice</Radio>
-                            <Select style={{ width: 120, }} placeholder="Select">
+                            {modalType !== 'add' &&  <Select style={{ width: 120, }} placeholder="Select">
                                 <Option value="A">paid</Option>
                                 <Option value="B" disabled>released</Option>
-                            </Select>
+                            </Select>}
                         </div>
                     </Radio.Group>  
                 </Row>
@@ -91,24 +91,24 @@ function ModifyModal(props){
                 </div>
                 <Row gutter={24}>
                     <Col span={8}>
-                        <FormItem label="% of Daily Settlement" style={{marginBottom: 10}}>
+                        <FormItem label="% of Daily Settlement">
                             <Input  placeholder="Amount" />  
                         </FormItem>
                     </Col>
                     <Col span={8}>
-                        <FormItem label="Start Date" style={{marginBottom: 10}}>
+                        <FormItem label="Start Date">
                             <Input placeholder="Date" />  
                         </FormItem>
                     </Col>
                     <Col span={8}>
-                        <FormItem label="# of Rolling Days" style={{marginBottom: 10}}>
+                        <FormItem label="# of Rolling Days">
                             <Input placeholder="Date" />  
                         </FormItem>
                     </Col>
                 </Row>
                 <Row gutter={24}>
                     <Col span={8}>
-                        <FormItem label="End Date" style={{marginBottom: 10}}>
+                        <FormItem label="End Date">
                             <Input  placeholder="Date" />  
                         </FormItem>
                     </Col>
