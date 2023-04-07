@@ -8,7 +8,7 @@ function TableDetail(props){
     const [ pageIndex, setPageIndex] = useState(1);
     const [ columns, setColumns] = useState([]);
 
-    let columnFixed = [{
+    const columnFixed = [{
         title: 'CREATION DATE',
         dataIndex: 'time_completed',
         width: '170px',
@@ -61,7 +61,7 @@ function TableDetail(props){
             </>
         )
     }] 
-    let columnsRolling = [{
+    const columnsRolling = [{
         title: 'CREATION DATE',
         dataIndex: 'time_completed',
         width: '170px',
@@ -145,7 +145,11 @@ function TableDetail(props){
     }
 
     useEffect(() => {
-        setColumns(modeTab === '1'?columnFixed:columnsRolling)
+        if(modeTab === '1'){
+            setColumns(columnFixed)
+        }else{
+            setColumns(columnsRolling)
+        }
         
         getDataSource()
 
