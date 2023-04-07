@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { useState, useEffect } from 'react';
 import { Table, Button, Tooltip, Icon } from 'antd';
 import styles from '@/layouts/index.less';
@@ -145,15 +146,11 @@ function TableDetail(props){
     }
 
     useEffect(() => {
-        if(modeTab === '1'){
-            setColumns(columnFixed)
-        }else{
-            setColumns(columnsRolling)
-        }
+        setColumns(modeTab === '1'?columnFixed:columnsRolling)
         
         getDataSource()
 
-    }, [columnFixed, columnsRolling, getDataSource, modeTab])
+    }, [getDataSource, modeTab])
 
     
     return (
