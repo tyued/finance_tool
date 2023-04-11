@@ -14,3 +14,10 @@ export async function getMerchantDetail(params) {
     data: {}
   });
 }
+
+export async function postCreateReserve(data) {
+  return request('/reserves', { 
+    method: 'POST',
+    data
+  });
+}

@@ -19,7 +19,12 @@ export default {
         *getMerchantDetail({ payload }, { call, put, select }) {
             const data = yield call(API.getMerchantDetail, payload);
             if (!success(data)) return;
-            return data
+            return data.data
+        },
+        *createReserve({ payload }, { call, put, select }) {
+            const data = yield call(API.postCreateReserve, payload);
+            if (!success(data)) return;
+            return data.data
         }
     },
     reducers: {
