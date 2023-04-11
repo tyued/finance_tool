@@ -2,7 +2,7 @@
 import React, { useCallback, useState, useEffect } from 'react';
 import { connect } from 'dva';
 import styles from '@/layouts/index.less';
-import { Input, Tabs } from 'antd';
+import { Input, Tabs, notification } from 'antd';
 import TableDetail from './components/TableDetail';
 import ModifyModal from './components/ModifyModal'
 
@@ -42,6 +42,33 @@ function Reserve({ app, reserveModel, dispatch }) {
             }
         })
     }
+    const deleteReserve = (row) => {
+        const { id } = row
+        const params = {
+            id
+        }
+        dispatch({
+            type: 'reserveModel/deleteReserve',
+            payload: params,
+            callback: (res) => {
+                console.log(res, 'deleteReserve-res')
+                if(res.data.status === 'success') {
+                    notification.success({
+                        message: 'success',
+                        description: res.data.message + '.',
+                        placement: 'bottomRight',
+                    })
+                    setQuery({...query})
+                } else {
+                    notification.error({
+                        message: 'An error has occured',
+                        description: res.data.message + '.',
+                        placement: 'bottomRight',
+                    })
+                }
+            }
+        })
+    }
     const onChangeTabs = (activeKey) => {
         setModeTab(activeKey)
         setQuery({
@@ -57,6 +84,7 @@ function Reserve({ app, reserveModel, dispatch }) {
         dataTotal,
         modeTab,
         clickEdit,
+        deleteReserve,
         getDataSource: useCallback(async (pageIndex) => {
             await dispatch({
                 type: 'reserveModel/query',

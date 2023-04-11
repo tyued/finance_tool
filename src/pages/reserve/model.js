@@ -37,7 +37,13 @@ export default {
         *createReserve({ payload }, { call, put, select }) {
             const data = yield call(API.postCreateReserve, payload);
             if (!success(data)) return;
+            
             return data.data
+        },
+        *deleteReserve({ payload, callback }, { call, put, select }) {
+            const data = yield call(API.deleteReserve, payload);
+            if (!success(data)) return;
+            callback(data)
         }
     },
     reducers: {

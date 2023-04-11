@@ -5,7 +5,7 @@ import styles from '@/layouts/index.less';
 import moment from 'moment';
 
 function TableDetail(props){
-    const { isMobile, dataSource, dataTotal, getDataSource, modeTab, clickEdit } = props;
+    const { isMobile, dataSource, dataTotal, deleteReserve, getDataSource, modeTab, clickEdit } = props;
     
     const [ pageIndex, setPageIndex] = useState(1);
     const [ columns, setColumns] = useState([]);
@@ -66,7 +66,7 @@ function TableDetail(props){
                 <Popconfirm
                     placement='top'
                     title='confirm to delete?'
-                    onConfirm={()=>delectReserve(row)}
+                    onConfirm={()=>deleteReserve(row)}
                     okText='Yes'
                     cancelText='No'
                 >
@@ -142,7 +142,7 @@ function TableDetail(props){
                 <Popconfirm
                     placement='top'
                     title='confirm to delete?'
-                    onConfirm={()=>delectReserve(row)}
+                    onConfirm={()=>deleteReserve(row)}
                     okText='Yes'
                     cancelText='No'
                 >
@@ -169,10 +169,6 @@ function TableDetail(props){
                 getDataSource(current)
             }
         },
-    }
-    
-    const delectReserve = () => {
-        console.log('delectReserve')
     }
 
     useEffect(() => {

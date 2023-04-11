@@ -29,9 +29,17 @@ export async function getReserveDetail(params) {
     data: {}
   });
 }
+
 export async function postCreateReserve(data) {
   return request('/reserves', { 
     method: 'POST',
     data
+  });
+}
+
+export async function deleteReserve(params) {
+  return request('/reserves/' + params.id, { 
+    method: 'DELETE',
+    data: {}
   });
 }
