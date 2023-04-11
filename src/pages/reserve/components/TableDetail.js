@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Table, Button, Tooltip, Icon, Popconfirm } from 'antd';
 import styles from '@/layouts/index.less';
+import moment from 'moment';
 
 function TableDetail(props){
     const { isMobile, dataSource, dataTotal, getDataSource, modeTab, clickEdit } = props;
@@ -11,21 +12,24 @@ function TableDetail(props){
 
     const columnFixed = [{
         title: 'CREATION DATE',
-        dataIndex: 'time_completed',
+        dataIndex: 'time_created',
         width: '170px',
+        render: (time_created) => (
+            <span>{moment(time_created).format('YYYY-MM-DD HH:mm:ss')}</span>
+        )
     },{
         title: 'MERCHANT ID',
-        dataIndex: 'transaction_id',
-        key: 'transaction_id',
+        dataIndex: 'merchant_id',
+        key: 'merchant_id',
         width: '150px'
     },{
         title: 'MERCHANT NAME',
-        dataIndex: 'merchant_legal_name',
+        dataIndex: 'merchant_name',
         width: '300px',
     },{
         title: 'TOTAL AMOUNT',
-        dataIndex: 'amount_init',
-        key: 'amount_init',
+        dataIndex: 'total_amount',
+        key: 'total_amount',
         width: '170px',
     },
     {
@@ -46,7 +50,7 @@ function TableDetail(props){
         width: '130px',
         align: 'center',
         render: (status) => (
-            <span className={styles[status]}>status</span>
+            <span className={styles[status]}>{status}</span>
         ),
     },{
         title: 'Operation',
@@ -57,12 +61,12 @@ function TableDetail(props){
         onlyTable: true,
         render: (item, row, index) => (
             <>
-                <Button type='primary' loading={row.status==='submitted' && global.loading} size='small' onClick={()=>clickEdit('edit')}>Modify</Button>
+                <Button type='primary' loading={row.status==='submitted' && global.loading} size='small' onClick={()=>clickEdit('edit',row)}>Modify</Button>
 
                 <Popconfirm
                     placement='top'
                     title='confirm to delete?'
-                    onConfirm={delectReserve}
+                    onConfirm={()=>delectReserve(row)}
                     okText='Yes'
                     cancelText='No'
                 >
@@ -71,23 +75,27 @@ function TableDetail(props){
             </>
         )
     }] 
+
     const columnsRolling = [{
         title: 'CREATION DATE',
-        dataIndex: 'time_completed',
+        dataIndex: 'time_created',
         width: '170px',
+        render: (time_created) => (
+            <span>{moment(time_created).format('YYYY-MM-DD HH:mm:ss')}</span>
+        )
     },{
         title: 'MERCHANT ID',
-        dataIndex: 'transaction_id',
-        key: 'transaction_id',
+        dataIndex: 'merchant_id',
+        key: 'merchant_id',
         width: '150px'
     },{
         title: 'MERCHANT NAME',
-        dataIndex: 'merchant_legal_name',
+        dataIndex: 'merchant_name',
         width: '200px',
     },{
         title: 'TOTAL AMOUNT',
-        dataIndex: 'amount_init',
-        key: 'amount_init',
+        dataIndex: 'total_amount',
+        key: 'total_amount',
         width: '150px',
     },{
         title: '# of Rolling Days',
@@ -129,8 +137,17 @@ function TableDetail(props){
         onlyTable: true,
         render: (item, row, index) => (
             <>
-                <Button type='primary' loading={row.status==='submitted' && global.loading} size='small'>Modify</Button>
-                <Button  style={{marginLeft: 10, background: '#ff4d4f', borderColor: '#ff4d4f'}} type='primary' loading={row.status==='submitted' && global.loading} size='small'>Delete</Button>
+                <Button type='primary' loading={row.status==='submitted' && global.loading} size='small' onClick={()=>clickEdit('edit',row)}>Modify</Button>
+
+                <Popconfirm
+                    placement='top'
+                    title='confirm to delete?'
+                    onConfirm={()=>delectReserve(row)}
+                    okText='Yes'
+                    cancelText='No'
+                >
+                    <Button  style={{marginLeft: 10, background: '#ff4d4f', borderColor: '#ff4d4f'}} type='primary' loading={row.status==='submitted' && global.loading} size='small'>Delete</Button>
+                </Popconfirm>
             </>
         )
     }] 

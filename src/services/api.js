@@ -14,3 +14,18 @@ export async function getMerchantDetail(params) {
     data: {}
   });
 }
+
+export async function getReservesList(params) {
+  return request('/reserves', { 
+    method: 'GET',
+    params,
+    data: {}
+  });
+}
+
+export async function getReserveDetail(params) {
+  return request('/reserve/' + params.id, { 
+    method: 'GET',
+    data: {}
+  });
+}

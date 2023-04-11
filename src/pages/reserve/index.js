@@ -1,5 +1,5 @@
 
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import { connect } from 'dva';
 import styles from '@/layouts/index.less';
 import { Input, Tabs } from 'antd';
@@ -16,15 +16,38 @@ function Reserve({ app, reserveModel, dispatch }) {
     const [ modeTab, setModeTab ] = useState('1')
     const [ isVisible, setIsVisible] = useState(false);
     const [ modalType, setModalType] = useState('');
+    const [query, setQuery] = useState({
+        page_no: 1,
+        limit: 4,
+        type: 'fixed',
+        keyword: ''
+    })
 
-    const openSearch = () => {
+    const openSearch = (value) => {
+        const { keywords } = value
+        setQuery({
+            ...query,
+            page_no: 1,
+            keyword: keywords
+        })
     }
-    const clickEdit = (action) => {
+    const clickEdit = async (action, item) => {
         setIsVisible(true);
         setModalType(action);
+        console.log(item)
+        await dispatch({
+            type: 'reserveModel/getReserveDetail',
+            payload: {
+                id: item.id
+            }
+        })
     }
     const onChangeTabs = (activeKey) => {
         setModeTab(activeKey)
+        setQuery({
+            ...query,
+            type: activeKey === '1' ? 'fixed' : 'rolling'
+        })
     }
 
 
@@ -35,17 +58,13 @@ function Reserve({ app, reserveModel, dispatch }) {
         modeTab,
         clickEdit,
         getDataSource: useCallback(async (pageIndex) => {
-            let initQuery = {
-                page_index: pageIndex || 1,
-                page_size: 10,
-            }
             await dispatch({
                 type: 'reserveModel/query',
                 payload:{
-                    query: initQuery,
+                    query: query,
                 }
             })
-        },[dispatch])
+        },[dispatch, query])
     }
 
     const modalProps = {
