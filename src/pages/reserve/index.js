@@ -10,12 +10,12 @@ const Search = Input.Search;
 const { TabPane } = Tabs;
 
 function Reserve({ app, reserveModel, dispatch }) {
-    const { isMobile } = app;
+    const { isMobile, user } = app;
+    const permission = user.permission?.reserve
     const { dataSource, dataTotal } = reserveModel;
     const [ modeTab, setModeTab ] = useState('1')
     const [ isVisible, setIsVisible] = useState(false);
     const [ modalType, setModalType] = useState('');
-
 
     const openSearch = () => {
     }
@@ -26,6 +26,7 @@ function Reserve({ app, reserveModel, dispatch }) {
     const onChangeTabs = (activeKey) => {
         setModeTab(activeKey)
     }
+
 
     const tableProps = {
         isMobile,
@@ -65,7 +66,7 @@ function Reserve({ app, reserveModel, dispatch }) {
                         style={{ width: 400}}
                         onSearch={value => openSearch({ keywords: value })}
                     />
-                    {!isMobile && <><span onClick={()=>clickEdit('add')}>Add Reserve</span></>}
+                    {permission.includes('create') && <><span onClick={()=>clickEdit('add')}>Add Reserve</span></>}
                 </div>
             </div>
             <Tabs defaultActiveKey='1' onChange={onChangeTabs}>

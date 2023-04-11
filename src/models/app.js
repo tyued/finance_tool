@@ -1,7 +1,10 @@
-import { getUser } from '@/services/user';
+import * as API from '@/services/api';
 import { routerRedux } from 'dva';
 import config from '@/utils/config';
 import { createAuthTree } from '@/utils/menu';
+
+import { getSessionID, setSessionID } from '@/utils/session';
+import { redirectToLogin } from '@/utils/tools'
 
 
 export default {
@@ -24,27 +27,27 @@ export default {
                 }
             });
         }
-
     },
     effects: {
         *query({ payload }, { call, put, select }) {
             try {
-                const { data } = yield call(getUser, {id:sessionStorage.getItem(`${config.prefix}_userInfo`)});
+                const loadSessionID = getSessionID();
+                if(!loadSessionID){
+                    redirectToLogin();
+                    return;
+                }
+                setSessionID(loadSessionID);
+                const { data } = yield call(API.getUserSessions, {});
 
-                const { userInfo } = data.data
+                
+                const { role, permission } = data.config;
+                let { pathname } =  payload
 
-                sessionStorage.setItem('userName',userInfo.realName);
-                const authorities = userInfo.roleList.join(',');
-                userInfo.authorities = authorities;
+                let { isFind, ...menuTree} = createAuthTree(role, payload)
 
-
-                const merchantList = yield select(state => state.app.dynamicMerchent);
-                let { isLogin, pathname } =  payload
-                let { isFind, ...menuTree} = createAuthTree(authorities, payload, merchantList)
-
-                if(!isFind) {
-                    yield put(routerRedux.push('/reserve'));
-                }else if(isLogin){ 
+                if(!isFind && pathname !== '/') {
+                    redirectToLogin();
+                }else { 
                     yield put(routerRedux.push(pathname));
                 }
 
@@ -52,12 +55,16 @@ export default {
                     type: 'setState',
                     payload: {
                         menuTree,
-                        user: userInfo
+                        user: {
+                            user_id: data.user_id,
+                            email: data.email,
+                            permission 
+                        }
                     },
                 })
 
             } catch (e) {
-                yield put(routerRedux.push('/login'));
+                redirectToLogin();
             }
         },
 

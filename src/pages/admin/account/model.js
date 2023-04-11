@@ -1,4 +1,4 @@
-import * as API from '@/services/user';
+// import * as API from '@/services/user';
 
 export default {
     namespace: 'users',
@@ -20,7 +20,8 @@ export default {
         *query({ payload }, { call, put, select }) {
             let params = yield select(state => state.users.query);
             params = Object.assign(params, payload);
-            const { data } = yield call(API.query, params);
+            // const { data } = yield call(API.query, params);
+            const { data } = {};
             if (data) {
                 yield put({
                     type: 'querySuccess',

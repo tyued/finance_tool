@@ -7,7 +7,12 @@ export const HTTP_MESSAGE = {
     NET_ERROR: 'There is something wrong with the network',
 };
 
-export const RESTRICTE = []
+export const ROLE_CONTROL = {
+    ADMIN: ["reserve"]
+}
+export const permission = ["view", "create", "edit"]
+
+export const RESTRICTE = [];
 
 // recordOperateLog WhiteList
-export const WHITELIST = ['/','/login'];
+export const WHITELIST = ['/'];

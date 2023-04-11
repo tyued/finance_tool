@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import styles from './index.less';
 
 const Menus = ({menuTree}) => {
+
     const createMenu = (menu=[]) => {
         return menu.map((item) => {
             if (item.type === 2) {

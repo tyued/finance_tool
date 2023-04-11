@@ -1,4 +1,4 @@
-import * as API from '@/services/admin';
+// import * as API from '@/services/admin';
 import { success } from '../../../utils/tools';
 
 export default {
@@ -20,9 +20,10 @@ export default {
             // merge search condition
             let params = yield select(state => state.merchant.query);
             params = Object.assign(params, payload);
-            const { data } = yield call(API.MerchantQuery, params);
+            // const { data } = yield call(API.MerchantQuery, params);
+            const {data} = {}
             
-            if (!success(data)) return;
+            // if (!success(data)) return;
             yield put({
                 type: 'setState',
                 payload: {

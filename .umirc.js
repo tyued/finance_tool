@@ -4,7 +4,9 @@ import routes from './src/routes';
 // ref: https://umijs.org/config/
 export default {
   define:{
-
+    'process.env.API_BASEPATH': process.env.API_BASEPATH,
+    'process.env.REACT_APP_DOMAIN': process.env.REACT_APP_DOMAIN,
+    'process.env.REACT_APP_LOGIN_URL': process.env.REACT_APP_LOGIN_URL
   },
   treeShaking: true,
   alias: {
@@ -12,7 +14,7 @@ export default {
   },
   proxy: {
     '/v1': {
-      target: 'http://localhost:9527',
+      target: 'http://localhost:9011',
       changeOrigin: true,
       pathRewrite: { '^/v1': '/v1' },
     },

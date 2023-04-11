@@ -14,7 +14,7 @@ export function scrollToTop() {
 // Hints for handling server responses
 export function success(data) {
     try {
-        if (data.data.code !== '2000') {
+        if (data.status !== 'success') {
             notification.error({
                 message: 'An error has occured',
                 description: data.data.message + '.',
@@ -71,4 +71,11 @@ export function useDebounce(fn, delay, dep = []) {
         current.fn.call(this, ...args);
       }, delay);
     }, [current.fn, current.timer, delay])
+}
+
+export function redirectToLogin(){
+    window.location =
+        process.env.REACT_APP_LOGIN_URL +
+        '/redirect/' +
+        encodeURIComponent(window.location);
 }

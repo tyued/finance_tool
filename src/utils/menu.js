@@ -1,8 +1,8 @@
 import authority from './authority';
 import { reject } from 'lodash';
-import { RESTRICTE } from '../common/constants';
+import { RESTRICTE, ROLE_CONTROL } from '../common/constants';
 
-export function array2Tree(arr, dynamicMerchent=[]) {
+export function array2Tree(arr) {
     const localArr = arr.map(arrItem => (Object.assign({}, arrItem)));
     const hash = {};
     const result = [];
@@ -23,19 +23,16 @@ export function array2Tree(arr, dynamicMerchent=[]) {
     return result;
 }
 
-export function createAuthTree(authorities, payload, dynamicMerchant=[]) {
-    // Filter user's existing permissions
-    let authArr = [], authList = [], tree = '';
-    // Permissions are cached in authorities
-    if (authorities === '*') {  
+export function createAuthTree(role, payload) {
+    let authList = [], tree = '';
+    
+    if (role === '*') {  
         authList = reject(authority, (item) => {
             return RESTRICTE.includes(item.id) || RESTRICTE.includes(item.pid)
         })
 
     } else {
-        if (authorities) {
-            authArr = authorities.split(',');   //分隔已有权限
-        }
+        let authArr = ROLE_CONTROL[role.toUpperCase()] || [];
         authList = authority.filter((item) => {
             if (authArr.includes(item.id)) {
                 return item;
@@ -43,7 +40,7 @@ export function createAuthTree(authorities, payload, dynamicMerchant=[]) {
             return '';
         });
     }
-    tree = array2Tree(authList, dynamicMerchant);
+    tree = array2Tree(authList);
     const { pathname } = payload
 
 
