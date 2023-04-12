@@ -24,7 +24,6 @@ export default {
             return true
         },
         *getReserveDetail({ payload }, { call, put, select }) {
-            console.log(payload, 'payload')
             const data = yield call(API.getReserveDetail, payload);
             if (!success(data)) return;
             return data
@@ -37,7 +36,6 @@ export default {
         *createReserve({ payload }, { call, put, select }) {
             const data = yield call(API.postCreateReserve, payload);
             if (!success(data)) return;
-            
             return data.data
         },
         *deleteReserve({ payload, callback }, { call, put, select }) {

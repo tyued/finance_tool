@@ -1,5 +1,5 @@
 
-import React, { useCallback, useState, useEffect } from 'react';
+import React, { useCallback, useState } from 'react';
 import { connect } from 'dva';
 import styles from '@/layouts/index.less';
 import { Input, Tabs, notification } from 'antd';
