@@ -3,6 +3,7 @@ import { connect } from 'dva';
 import { Modal, Radio, Form, Input, Row, Col, Checkbox, Button, Select, DatePicker, InputNumber, notification } from 'antd';
 import styles from '@/assets/css/style.less';
 import moment from 'moment';
+import { DeleteOutlined } from '@ant-design/icons';
 
 const FormItem = Form.Item;
 const { Search } = Input
@@ -189,7 +190,15 @@ function ModifyModal({ modalType, isVisible, closeModal, dispatch, reserveModel,
                     Fixed Reserve:
                 </Checkbox>
                 {formData.fixedList.map((item,index) => (
-                    <div className={index+1==formData.fixedList.length?'':styles.boxliner} key={'fixed'+index} style={{ paddingBottom: 10 }}>
+                    <div className={index+1==formData.fixedList.length?'':styles.boxliner} key={'fixed'+index} style={{ paddingBottom: 10, paddingTop: index===0?0:15 }}>
+                        
+                        {index!==0 && <Row gutter={24}>
+                            <Col span={24}>
+                                <Button type="danger" style={{right: 0, top: -10, position: 'absolute', zIndex: 1}}>
+                                <DeleteOutlined />delete
+                                </Button>
+                            </Col>
+                        </Row>}
                         <Row gutter={24}>
                             <Col span={8}>
                                 <FormItem label="Amount" name={`amount_${index}`}>
@@ -236,7 +245,6 @@ function ModifyModal({ modalType, isVisible, closeModal, dispatch, reserveModel,
                                 </Radio.Group>  
                             )} 
                         </FormItem>
-                        
                     </div>
                 ))}
                 <Button type='primary' icon='plus' onClick={clickAddFixed}>Add fixed Reserve</Button>
