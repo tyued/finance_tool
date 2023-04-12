@@ -22,7 +22,6 @@ function ModifyModal({ modalType, isVisible, closeModal, dispatch, reserveModel,
     });
 
     const changeValue = useCallback((event, type) => {
-
         const getMerchantDetail = async (id) => {
             let res = await dispatch({
                 type: 'reserveModel/getMerchantDetail',
@@ -30,7 +29,7 @@ function ModifyModal({ modalType, isVisible, closeModal, dispatch, reserveModel,
                     id
                 }
             })
-            if(!res) {
+            if(!res){ 
                 setFormData({
                     ...formData,
                     merchant_name: '',
@@ -46,7 +45,6 @@ function ModifyModal({ modalType, isVisible, closeModal, dispatch, reserveModel,
         }
 
         let value = !event?.target ? event : (event.target?.value||event.target?.checked);
-        console.log(value, 'value-event')
         if(type === 'id'){
             getMerchantDetail(value)
             return
@@ -107,7 +105,17 @@ function ModifyModal({ modalType, isVisible, closeModal, dispatch, reserveModel,
 
             if(fixed){
                 const reqFixed = fixedList.map(item => {
-                    return {merchant_id, type: 'fixed', content:item}
+                    const { start_date: due_date, end_date: release_date, amount, mode } = item
+                    return {
+                        merchant_id, 
+                        type: 'fixed', 
+                        start_date: due_date,
+                        end_date: release_date,
+                        content:{
+                            amount,
+                            mode
+                        }
+                    }
                 })
                 reqData = reqData.concat(reqFixed)
             }
@@ -115,9 +123,9 @@ function ModifyModal({ modalType, isVisible, closeModal, dispatch, reserveModel,
                 const reqRolling = {
                     merchant_id,
                     type: 'rolling',
+                    start_date,
+                    end_date,
                     content: {
-                        start_date,
-                        end_date,
                         percent,
                         rolling_period,
                     }
@@ -130,7 +138,10 @@ function ModifyModal({ modalType, isVisible, closeModal, dispatch, reserveModel,
                     list: reqData
                 }
             })
-            // resetFields();
+            if(res){
+                closeModal();
+                resetFields();
+            }
         });
     }
 
@@ -141,7 +152,7 @@ function ModifyModal({ modalType, isVisible, closeModal, dispatch, reserveModel,
             placement: 'bottomRight',
         })
     }
-    
+
     useEffect(() => {
         
     }, [modalType])
