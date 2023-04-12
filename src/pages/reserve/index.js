@@ -34,13 +34,14 @@ function Reserve({ app, reserveModel, dispatch }) {
     const clickEdit = async (action, item) => {
         setIsVisible(true);
         setModalType(action);
-        console.log(item)
-        await dispatch({
-            type: 'reserveModel/getReserveDetail',
-            payload: {
-                id: item.id
-            }
-        })
+        if(action === 'edit') {
+            await dispatch({
+                type: 'reserveModel/getReserveDetail',
+                payload: {
+                    id: item.id
+                }
+            })
+        }
     }
     const deleteReserve = (row) => {
         const { id } = row
