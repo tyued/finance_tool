@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { connect } from 'dva';
 import { Modal, Radio, Form, Input, Row, Col, Checkbox, Button, Select, DatePicker, InputNumber, notification } from 'antd';
+import { cloneDeep } from "lodash";
 import styles from '@/assets/css/style.less';
 import moment from 'moment';
 import { DeleteOutlined } from '@ant-design/icons';
@@ -146,6 +147,16 @@ function ModifyModal({ modalType, isVisible, closeModal, dispatch, reserveModel,
         });
     }
 
+    const deleteFixed = (index) => {
+        let newFixedList = cloneDeep(formData.fixedList)
+        newFixedList.splice(index, 1)
+        console.log(newFixedList, 'newFixedList')
+        setFormData({
+            ...formData,
+            fixedList: [{amount:33}]
+        })
+    }
+
     const showError = (message) => {
         notification.error({
             message: 'An error has occured',
@@ -201,11 +212,10 @@ function ModifyModal({ modalType, isVisible, closeModal, dispatch, reserveModel,
                     Fixed Reserve:
                 </Checkbox>
                 {formData.fixedList.map((item,index) => (
-                    <div className={index+1==formData.fixedList.length?'':styles.boxliner} key={'fixed'+index} style={{ paddingBottom: 10, paddingTop: index===0?0:15 }}>
-                        
+                    <div className={index+1===formData.fixedList.length?'':styles.boxliner} key={'fixed'+index} style={{ paddingBottom: 10, paddingTop: index===0?0:15 }}>
                         {index!==0 && <Row gutter={24}>
                             <Col span={24}>
-                                <Button type="danger" style={{right: 0, top: -10, position: 'absolute', zIndex: 1}}>
+                                <Button type="danger" style={{right: 0, top: -10, position: 'absolute', zIndex: 1}} onClick={() => deleteFixed(index)}>
                                 <DeleteOutlined />delete
                                 </Button>
                             </Col>
