@@ -22,7 +22,31 @@ function ModifyModal({ modalType, isVisible, closeModal, dispatch, reserveModel,
     });
 
     const changeValue = useCallback((event, type) => {
+
+        const getMerchantDetail = async (id) => {
+            let res = await dispatch({
+                type: 'reserveModel/getMerchantDetail',
+                payload: {
+                    id
+                }
+            })
+            if(!res) {
+                setFormData({
+                    ...formData,
+                    merchant_name: '',
+                    settlement_currency: '',
+                    merchant_id: ''
+                })
+                return
+            }
+            setFormData({
+                ...formData,
+                ...res
+            });
+        }
+
         let value = !event?.target ? event : (event.target?.value||event.target?.checked);
+        console.log(value, 'value-event')
         if(type === 'id'){
             getMerchantDetail(value)
             return
@@ -33,27 +57,15 @@ function ModifyModal({ modalType, isVisible, closeModal, dispatch, reserveModel,
             ...formData,
             [type]: value
         });
-    }, [getMerchantDetail, formData])
+    }, [formData, dispatch])
 
-    const getMerchantDetail = async (id) => {
-        let res = await dispatch({
-            type: 'reserveModel/getMerchantDetail',
-            payload: {
-                id
-            }
-        })
-        if(!res) return
-        setFormData({
-            ...formData,
-            ...res
-        });
-    }
     const clickAddFixed = () => {
         setFormData({
             ...formData,
             fixedList:[...formData.fixedList, {}]
         })
     }
+
     const changeFixedValue = useCallback((event, type, index) => {
         let value = !event?.target ? event : (event.target.value);
         let { fixedList } = formData;
@@ -79,6 +91,7 @@ function ModifyModal({ modalType, isVisible, closeModal, dispatch, reserveModel,
         }
         callback()
     }
+
     const handleSubmit = () => {
         form.validateFields(async (err, values) => {
             if(err) return
@@ -128,6 +141,7 @@ function ModifyModal({ modalType, isVisible, closeModal, dispatch, reserveModel,
             placement: 'bottomRight',
         })
     }
+    
     useEffect(() => {
         
     }, [modalType])
