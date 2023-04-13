@@ -1,10 +1,9 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect } from "react";
 import { connect } from 'dva';
-import { Modal, Radio, Form, Input, Row, Col, Checkbox, Button, Select, DatePicker, InputNumber, notification } from 'antd';
-import { cloneDeep } from "lodash";
+import { Modal, Radio, Form, Input, Row, Col, Checkbox, Button, Select, DatePicker, InputNumber, notification, Icon } from 'antd';
 import styles from '@/assets/css/style.less';
 import moment from 'moment';
-import { DeleteOutlined } from '@ant-design/icons';
+import { isEmpty } from '@/utils/tools'
 
 const FormItem = Form.Item;
 const { Search } = Input
@@ -12,110 +11,86 @@ const {Option} = Select
 const dateFormat = 'YYYY-MM-DD';
 
 const disabledDate = (current) => {
-    return current && current<moment().endOf('day')
+    return current && current<moment().subtract(1, 'days')
 }
 
-function ModifyModal({ modalType, isVisible, closeModal, dispatch, reserveModel, form }){
-    const { getFieldDecorator, resetFields } = form;
-    let modalTitle = modalType === 'add'? 'New Reserve' : 'Edit Reserve';
-    const [ formData, setFormData ] = useState({
-        fixed: false,
-        fixedList: [{}]
-    });
+let fixedId = 1;
 
-    const changeValue = useCallback((event, type) => {
-        const getMerchantDetail = async (id) => {
+function ModifyModal({ modalType, isVisible, closeModal, dispatch, reserveModel, form, formData }){
+    const { getFieldDecorator, resetFields, setFieldsValue, getFieldsValue, getFieldValue } = form;
+    let modalTitle = modalType === 'add'? 'New Reserve' : 'Edit Reserve';
+
+    getFieldDecorator('fixedKeys', { initialValue: [0] });
+    const fixedKeys = getFieldValue('fixedKeys');
+
+    const changeValue = useCallback(async (event, type) => {
+        let value = !event?.target ? event : (event.target?.value||event.target?.checked);
+        if(type === 'id'){
             let res = await dispatch({
                 type: 'reserveModel/getMerchantDetail',
                 payload: {
-                    id
+                    id: value
                 }
             })
-            if(!res){ 
-                setFormData({
-                    ...formData,
-                    merchant_name: '',
-                    settlement_currency: '',
-                    merchant_id: ''
-                })
-                return
-            }
-            setFormData({
-                ...formData,
-                ...res
-            });
+            setFieldsValue({
+                merchant_id: res?.merchant_id || '', 
+                merchant_name: res?.merchant_name || '', 
+                settlement_currency: res?.settlement_currency || ''
+            })
         }
 
-        let value = !event?.target ? event : (event.target?.value||event.target?.checked);
-        if(type === 'id'){
-            getMerchantDetail(value)
-            return
-        }else if(type === 'end_date' || type === 'start_date'){
-            value = moment(value).format(dateFormat)
-        }
-        setFormData({
-            ...formData,
-            [type]: value
+    }, [dispatch, setFieldsValue])
+
+    const deleteFixed = (k) => {
+        let orgFixedKeys = getFieldValue('fixedKeys');
+        setFieldsValue({
+            fixedKeys: orgFixedKeys.filter(key => key !== k),
         });
-    }, [formData, dispatch])
-
-    const clickAddFixed = () => {
-        setFormData({
-            ...formData,
-            fixedList:[...formData.fixedList, {}]
-        })
     }
-
-    const changeFixedValue = useCallback((event, type, index) => {
-        let value = !event?.target ? event : (event.target.value);
-        let { fixedList } = formData;
-        if(type === 'end_date' || type === 'start_date'){
-            value = moment(value).format(dateFormat)
-        } 
-        formData.fixedList[index][type] = value
-        setFormData({
-            ...formData,
-            fixedList
-        })
-        
-    }, [formData])
-
+    const clickAddFixed = () => {
+        let orgFixedKeys = getFieldValue('fixedKeys');
+        setFieldsValue({fixedKeys: orgFixedKeys.concat(fixedId++)})
+    }
     const checkValidator = (rule, value, callback) => {
-        const { field } = rule
-        const type = field.split('_')?.[0]
-        if(type === 'fixed' && formData.fixed && !value ){
+        const { field } = rule;
+        const type = field.split('_')?.[0];
+        const { fixed, rolling} = getFieldsValue();
+        if(type === 'fixed' && fixed && !value ){
             return callback('This is required')
         }
-        if(type === 'rolling' && formData.rolling && !value ){
+        if(type === 'rolling' && rolling && !value ){
             return callback('This is required')
         }
         callback()
     }
 
+
     const handleSubmit = () => {
         form.validateFields(async (err, values) => {
-            if(err) return
-
-            const { fixed, rolling, fixedList, merchant_id, merchant_name, settlement_currency,
-                start_date, end_date, percent, rolling_period } = formData;
-
+            if(err) return;
+            const { merchant_id, merchant_name, settlement_currency, fixed, rolling, 
+                fixedKeys, fixed_amount, fixed_end_date, fixed_mode, fixed_start_date, 
+                rolling_start_date, rolling_end_date, rolling_percent, rolling_period } = values;
             let reqData = [];
 
             if(merchant_id && (!merchant_name || !settlement_currency)){
-                showError("Please Search Merchant's Citcon MID ")
+                showError("Please Search Merchant's Citcon MID ");
+                return;
             }
-
+            if(!fixed || !rolling){
+                showError("Please Select Reserve ");
+                return;
+            }
             if(fixed){
-                const reqFixed = fixedList.map(item => {
-                    const { start_date: due_date, end_date: release_date, amount, mode } = item
+                const reqFixed = fixedKeys.map(key => {
                     return {
                         merchant_id, 
                         type: 'fixed', 
-                        start_date: due_date,
-                        end_date: release_date,
+                        start_date: moment(fixed_start_date[key]).format(dateFormat),
+                        end_date: moment(fixed_end_date[key]).format(dateFormat),
                         content:{
-                            amount,
-                            mode
+                            amount: fixed_amount[key],
+                            mode: fixed_mode[key]
                         }
                     }
                 })
@@ -125,10 +100,10 @@ function ModifyModal({ modalType, isVisible, closeModal, dispatch, reserveModel,
                 const reqRolling = {
                     merchant_id,
                     type: 'rolling',
-                    start_date,
-                    end_date,
+                    start_date: moment(rolling_start_date).format(dateFormat),
+                    end_date: moment(rolling_end_date).format(dateFormat),
                     content: {
-                        percent,
+                        percent: rolling_percent,
                         rolling_period,
                     }
                 }
@@ -141,22 +116,12 @@ function ModifyModal({ modalType, isVisible, closeModal, dispatch, reserveModel,
                 }
             })
             if(res){
-                closeModal();
                 resetFields();
+                closeModal();
             }
-        });
-    }
 
-    const deleteFixed = (index) => {
-        let newFixedList = cloneDeep(formData.fixedList)
-        newFixedList.splice(index, 1)
-        console.log(newFixedList, 'newFixedList')
-        setFormData({
-            ...formData,
-            fixedList: [{amount:33}]
         })
     }
-
     const showError = (message) => {
         notification.error({
             message: 'An error has occured',
@@ -166,9 +131,31 @@ function ModifyModal({ modalType, isVisible, closeModal, dispatch, reserveModel,
     }
 
     useEffect(() => {
-        
-    }, [modalType])
-
+        if(isEmpty(formData)) return;
+        const { merchant_id, merchant_name, type, content, end_date, start_date } = formData;
+        let resData = {}
+        if(type === 'fixed'){
+            resData = {
+                fixed: true,
+                fixed_amount: [content.amount],
+                fixed_mode: [content.mode],
+                fixed_start_date: [start_date?moment(start_date):null],
+                fixed_end_date: [end_date?moment(end_date):null],
+            }
+        }else if(type === 'rolling'){
+            resData = {
+                rolling: true,
+                rolling_start_date: start_date?moment(start_date):null,
+                rolling_end_date: end_date?moment(end_date):null,
+                rolling_percent: content.percent, 
+                rolling_period: content.rolling_period
+            }
+        }
+        setFieldsValue({
+            merchant_id, merchant_name, 
+            ...resData
+        })
+    }, [formData, setFieldsValue])
     return (
         <Modal
             title={ modalTitle }
@@ -182,7 +169,6 @@ function ModifyModal({ modalType, isVisible, closeModal, dispatch, reserveModel,
             <Form>
                 <FormItem label="Merchant's Citcon MID">
                     {getFieldDecorator('merchant_id', {
-                        initialValue: formData.merchant_id || '',
                         rules: [{required: true, message: 'mid is required'}]
                     })(
                         <Search placeholder="Please enter merchant's citcon MID" onSearch={(e)=>changeValue(e, 'id')}></Search>
@@ -191,127 +177,131 @@ function ModifyModal({ modalType, isVisible, closeModal, dispatch, reserveModel,
                 <Row gutter={24}>
                     <Col span={12}>
                         <FormItem label="Merchant Name" >
-                            {getFieldDecorator('merchant_name', {
-                                initialValue: formData.merchant_name || '',
-                            })(
+                            {getFieldDecorator('merchant_name', {})(
                                 <Input disabled />
                             )}
                         </FormItem>
                     </Col>
                     <Col span={12}>
                         <FormItem label="Settlement Currency">
-                            {getFieldDecorator('settlement_currency', {
-                                initialValue: formData.settlement_currency || ''
-                            })(
+                            {getFieldDecorator('settlement_currency', {})(
                                 <Input disabled />
                             )}
                         </FormItem>
                     </Col>
                 </Row>
-                <Checkbox className={styles.subTit} style={{fontSize: 22}}  onChange={(e)=>changeValue(e, 'fixed')}>
-                    Fixed Reserve:
-                </Checkbox>
-                {formData.fixedList.map((item,index) => (
-                    <div className={index+1===formData.fixedList.length?'':styles.boxliner} key={'fixed'+index} style={{ paddingBottom: 10, paddingTop: index===0?0:15 }}>
-                        {index!==0 && <Row gutter={24}>
-                            <Col span={24}>
-                                <Button type="danger" style={{right: 0, top: -10, position: 'absolute', zIndex: 1}} onClick={() => deleteFixed(index)}>
-                                <DeleteOutlined />delete
-                                </Button>
-                            </Col>
-                        </Row>}
-                        <Row gutter={24}>
-                            <Col span={8}>
-                                <FormItem label="Amount" name={`amount_${index}`}>
-                                    {getFieldDecorator(`fixed_amount_${index}`, {
-                                        rules: [{ validator: checkValidator}]
-                                    })(
-                                        <InputNumber style={{ width: '100%' }} onChange={(e)=>changeFixedValue(e, 'amount', index)} />
-
-                                    )}
-                                </FormItem>
-                            </Col>
-                            <Col span={8}>
-                                <FormItem label="Due Date">
-                                    {getFieldDecorator(`fixed_start_date_${index}`, {
-                                        rules: [{ validator: checkValidator}]
-                                    })(
-                                        <DatePicker placeholder="Due Date" disabledDate={disabledDate} format={dateFormat} onChange={(e)=>changeFixedValue(e, 'start_date', index)} />
-                                    )}
+                {(!formData.type || formData.type==='fixed') && <>
+                    {getFieldDecorator('fixed', { 
+                        valuePropName: 'checked'
+                    })(
+                        <Checkbox className={styles.subTit} style={{fontSize: 22}}>
+                            Fixed Reserve:
+                        </Checkbox>
+                    )}
+                    {fixedKeys.map((key,index) => (
+                        <div className={index+1===fixedKeys.length?'':styles.boxliner} key={'fixed'+index} style={{ paddingBottom: 10, position: 'relative' }}>
+                            {index!==0 && 
+                                <Button className={styles.delButton} type="danger" icon="delete" onClick={() => deleteFixed(key)}></Button>
+                            }
+                            <Row gutter={24}>
+                                <Col span={8}>
+                                    <FormItem label="Amount" name={`amount_${index}`}>
+                                        {getFieldDecorator(`fixed_amount[${key}]`, {
+                                            rules: [{ validator: checkValidator}]
+                                        })(
+                                            <InputNumber style={{ width: '100%' }} />
+                                        )}
                                     </FormItem>
-                            </Col>
-                            <Col span={8}>
-                                <FormItem label="Release Date">
-                                    {getFieldDecorator(`fixed_end_date_${index}`, {
-                                        rules: [{ validator: checkValidator}]
-                                    })(
-                                        <DatePicker placeholder="Release Date" disabledDate={disabledDate} format={dateFormat} onChange={(e)=>changeFixedValue(e, 'end_date', index)} />
-                                    )}
-                                </FormItem>
-                            </Col>
-                        </Row>
-                        <div className={styles.subTit} style={{paddingTop: 10}}>How to Charge</div>
-                        <FormItem>
-                            {getFieldDecorator(`fixed_mode_${index}`, {
-                                rules: [{ validator: checkValidator}]
-                            })(
-                                <Radio.Group style={{ marginLeft: 20}}  onChange={(e)=>changeFixedValue(e, 'mode', index)}>
-                                    <Radio style={{ width: '100%', marginBottom: 10 }} value='settlement_deduction'>Deduct it from settlemen</Radio>
-                                    <Radio style={{ width: '100%', marginBottom: 10 }} value='ach_debit' disabled>ACH Debit</Radio>
-                                    <Radio style={{ width: '100%' }} value='invoice'>Invoice</Radio>
-                                    {modalType !== 'add' &&  <Select style={{ width: '100%' }} placeholder="Select">
-                                        <Option value="A">paid</Option>
-                                        <Option value="B" disabled>released</Option>
-                                    </Select>}
-                                </Radio.Group>  
-                            )} 
-                        </FormItem>
-                    </div>
-                ))}
-                <Button type='primary' icon='plus' onClick={clickAddFixed}>Add fixed Reserve</Button>
-                <div style={{marginTop: 30}}>
-                    <Checkbox className={styles.subTit} style={{fontSize: 22}} onChange={(e)=>changeValue(e, 'rolling')}>
-                        Rolling Reserve:
-                    </Checkbox>
-                </div>
-                <Row gutter={24}>
-                    <Col span={8}>
-                        <FormItem label="% of Daily Settlement">
-                            {getFieldDecorator(`rolling_percent`, {
-                                rules: [{ validator: checkValidator}]
-                            })(
-                                <InputNumber style={{ width: '100%' }}  placeholder="Amount" onChange={(e)=>changeValue(e, 'percent')} />  
-                            )}
-                        </FormItem>
-                    </Col>
-                    <Col span={8}>
-                        <FormItem label="Start Date">
-                            {getFieldDecorator(`rolling_start_date`, {
-                                rules: [{ validator: checkValidator}]
-                            })(
-                                <DatePicker style={{ width: '100%' }} disabledDate={disabledDate} format={dateFormat} placeholder="Date" onChange={(e)=>changeValue(e, 'start_date')} />  
-                            )}
-                        </FormItem>
-                    </Col>
-                    <Col span={8}>
-                        <FormItem label="# of Rolling Days">
-                            {getFieldDecorator(`rolling_rolling_period`, {
-                                rules: [{ validator: checkValidator}]
-                            })(
-                                <InputNumber style={{ width: '100%' }} placeholder="Date" onChange={(e)=>changeValue(e, 'rolling_period')} />  
-                            )}
-                            
-                        </FormItem>
-                    </Col>
-                </Row>
-                <Row gutter={24}>
-                    <Col span={8}>
-                        <FormItem label="End Date">
-                            <DatePicker style={{ width: '100%' }} disabledDate={disabledDate} format={dateFormat} placeholder="Date" onChange={(e)=>changeValue(e, 'end_date')} />  
-                        </FormItem>
-                    </Col>
-                </Row>
+                                </Col>
+                                <Col span={8}>
+                                    <FormItem label="Due Date">
+                                        {getFieldDecorator(`fixed_start_date[${key}]`, {
+                                            rules: [{ validator: checkValidator}]
+                                        })(
+                                            <DatePicker placeholder="Due Date" disabledDate={disabledDate} format={dateFormat} />
+                                        )}
+                                        </FormItem>
+                                </Col>
+                                <Col span={8}>
+                                    <FormItem label="Release Date">
+                                        {getFieldDecorator(`fixed_end_date[${key}]`, {
+                                            rules: [{ validator: checkValidator}]
+                                        })(
+                                            <DatePicker placeholder="Release Date" disabledDate={disabledDate} format={dateFormat} />
+                                        )}
+                                    </FormItem>
+                                </Col>
+                            </Row>
+                            <div className={styles.subTit} style={{paddingTop: 10}}>How to Charge</div>
+                            <FormItem>
+                                {getFieldDecorator(`fixed_mode[${key}]`, {
+                                    rules: [{ validator: checkValidator}]
+                                })(
+                                    <Radio.Group style={{ marginLeft: 20}}>
+                                        <Radio style={{ width: '100%', marginBottom: 10 }} value='settlement_deduction'>Deduct it from settlemen</Radio>
+                                        <Radio style={{ width: '100%', marginBottom: 10 }} value='ach_debit' disabled>ACH Debit</Radio>
+                                        <Radio style={{ width: '100%' }} value='invoice'>Invoice</Radio>
+                                        {modalType !== 'add' &&  <Select style={{ width: '100%' }} placeholder="Select">
+                                            <Option value="A">paid</Option>
+                                            <Option value="B" disabled>released</Option>
+                                        </Select>}
+                                    </Radio.Group>  
+                                )} 
+                            </FormItem>
+                        </div>
+                    ))}
+                    { modalType === 'add' && <Button type='primary' icon='plus' onClick={clickAddFixed}>Add fixed Reserve</Button>}
+                </>}
+                {(!formData.type || formData.type==='rolling') && <>
+                    {getFieldDecorator('rolling', { 
+                        valuePropName: 'checked'
+                    })(
+                        <Checkbox className={styles.subTit} style={{fontSize: 22}}>
+                            Rolling Reserve:
+                        </Checkbox>
+                    )}
+                    <Row gutter={24}>
+                        <Col span={8}>
+                            <FormItem label="% of Daily Settlement">
+                                {getFieldDecorator(`rolling_percent`, {
+                                    rules: [{ validator: checkValidator}]
+                                })(
+                                    <InputNumber style={{ width: '100%' }}  placeholder="Amount" />  
+                                )}
+                            </FormItem>
+                        </Col>
+                        <Col span={8}>
+                            <FormItem label="Start Date">
+                                {getFieldDecorator(`rolling_start_date`, {
+                                    rules: [{ validator: checkValidator}]
+                                })(
+                                    <DatePicker style={{ width: '100%' }} disabledDate={disabledDate} format={dateFormat} placeholder="Date"/>  
+                                )}
+                            </FormItem>
+                        </Col>
+                        <Col span={8}>
+                            <FormItem label="# of Rolling Days">
+                                {getFieldDecorator(`rolling_period`, {
+                                    rules: [{ validator: checkValidator}]
+                                })(
+                                    <InputNumber style={{ width: '100%' }} placeholder="Date" />  
+                                )}
+                            </FormItem>
+                        </Col>
+                    </Row>
+                    <Row gutter={24}>
+                        <Col span={8}>
+                            <FormItem label="End Date">
+                                {getFieldDecorator(`rolling_end_date`, {})(
+                                    <DatePicker style={{ width: '100%' }} disabledDate={disabledDate} format={dateFormat} placeholder="Date" />  
+                                )}
+                                
+                            </FormItem>
+                        </Col>
+                    </Row>
+                </>}
             </Form>
+
 
         </Modal>
     )

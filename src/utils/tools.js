@@ -79,3 +79,7 @@ export function redirectToLogin(){
         '/redirect/' +
         encodeURIComponent(window.location);
 }
+
+export function isEmpty(input){
+    return input === null || input === undefined || input === '' || JSON.stringify(input) === '{}'
+}

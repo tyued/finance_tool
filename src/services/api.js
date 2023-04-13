@@ -24,7 +24,7 @@ export async function getReservesList(params) {
 }
 
 export async function getReserveDetail(params) {
-  return request('/reserve/' + params.id, { 
+  return request('/reserves/' + params.id, { 
     method: 'GET',
     data: {}
   });

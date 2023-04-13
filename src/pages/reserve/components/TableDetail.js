@@ -63,15 +63,17 @@ function TableDetail(props){
             <>
                 <Button type='primary' loading={row.status==='submitted' && global.loading} size='small' onClick={()=>clickEdit('edit',row)}>Modify</Button>
 
-                <Popconfirm
-                    placement='top'
-                    title='confirm to delete?'
-                    onConfirm={()=>deleteReserve(row)}
-                    okText='Yes'
-                    cancelText='No'
-                >
-                    <Button  style={{marginLeft: 10, background: '#ff4d4f', borderColor: '#ff4d4f'}} type='primary' loading={row.status==='submitted' && global.loading} size='small'>Delete</Button>
-                </Popconfirm>
+                {row.status === 'initiated' && 
+                    <Popconfirm
+                        placement='top'
+                        title='confirm to delete?'
+                        onConfirm={()=>deleteReserve(row)}
+                        okText='Yes'
+                        cancelText='No'
+                    >
+                        <Button  style={{marginLeft: 10, background: '#ff4d4f', borderColor: '#ff4d4f'}} type='primary' loading={row.status==='submitted' && global.loading} size='small'>Delete</Button>
+                    </Popconfirm>
+                }
             </>
         )
     }] 
@@ -139,15 +141,17 @@ function TableDetail(props){
             <>
                 <Button type='primary' loading={row.status==='submitted' && global.loading} size='small' onClick={()=>clickEdit('edit',row)}>Modify</Button>
 
-                <Popconfirm
-                    placement='top'
-                    title='confirm to delete?'
-                    onConfirm={()=>deleteReserve(row)}
-                    okText='Yes'
-                    cancelText='No'
-                >
-                    <Button  style={{marginLeft: 10, background: '#ff4d4f', borderColor: '#ff4d4f'}} type='primary' loading={row.status==='submitted' && global.loading} size='small'>Delete</Button>
-                </Popconfirm>
+                {row.status === 'initiated' && 
+                    <Popconfirm
+                        placement='top'
+                        title='confirm to delete?'
+                        onConfirm={()=>deleteReserve(row)}
+                        okText='Yes'
+                        cancelText='No'
+                    >
+                        <Button  style={{marginLeft: 10, background: '#ff4d4f', borderColor: '#ff4d4f'}} type='primary' loading={row.status==='submitted' && global.loading} size='small'>Delete</Button>
+                    </Popconfirm>
+                }
             </>
         )
     }] 
@@ -159,7 +163,7 @@ function TableDetail(props){
         rowKey: (record, index) => index,
         scroll: {
             x: 1000, 
-            y: 'calc(100vh - 350px)',
+            y: 'calc(100vh - 400px)',
         },
         pagination: {
             current: pageIndex,
@@ -172,17 +176,14 @@ function TableDetail(props){
     }
 
     useEffect(() => {
-        setColumns(modeTab === '1'?columnFixed:columnsRolling)
-        
+        setColumns(modeTab === '1'?columnFixed:columnsRolling);
+        setPageIndex(1)
         getDataSource()
-
     }, [getDataSource, modeTab])
 
     
     return (
-        <>
-            <Table {...tableProp} />
-        </>
+        <Table {...tableProp} />
     )
 }
 

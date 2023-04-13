@@ -16,9 +16,9 @@ function Reserve({ app, reserveModel, dispatch }) {
     const [ modeTab, setModeTab ] = useState('1')
     const [ isVisible, setIsVisible] = useState(false);
     const [ modalType, setModalType] = useState('');
+    const [ formData, setFormData] = useState({});
     const [query, setQuery] = useState({
-        page_no: 1,
-        limit: 4,
+        limit: 10,
         type: 'fixed',
         keyword: ''
     })
@@ -27,7 +27,6 @@ function Reserve({ app, reserveModel, dispatch }) {
         const { keywords } = value
         setQuery({
             ...query,
-            page_no: 1,
             keyword: keywords
         })
     }
@@ -35,13 +34,16 @@ function Reserve({ app, reserveModel, dispatch }) {
         setIsVisible(true);
         setModalType(action);
         if(action === 'edit') {
-            await dispatch({
+            let res = await dispatch({
                 type: 'reserveModel/getReserveDetail',
                 payload: {
                     id: item.id
                 }
             })
+            setFormData(res)
+            return;
         }
+        setFormData({})
     }
     const deleteReserve = (row) => {
         const { id } = row
@@ -78,7 +80,6 @@ function Reserve({ app, reserveModel, dispatch }) {
         })
     }
 
-
     const tableProps = {
         isMobile,
         dataSource,
@@ -90,7 +91,10 @@ function Reserve({ app, reserveModel, dispatch }) {
             await dispatch({
                 type: 'reserveModel/query',
                 payload:{
-                    query: query,
+                    query: {
+                        ...query,
+                        page_no: pageIndex || 1,
+                    },
                 }
             })
         },[dispatch, query])
@@ -99,9 +103,11 @@ function Reserve({ app, reserveModel, dispatch }) {
     const modalProps = {
         isVisible,
         modalType,
+        formData,
         closeModal: () => {
             setIsVisible(false);
             setModalType('');
+            setFormData({})
         }
     }
 
